@@ -36,4 +36,26 @@ const EHRManagement = ({ patientId }) => {
             />
             <div>
                 <input 
-                    value={
+                    value={medication.name} 
+                    onChange={(e) => setMedication({ ...medication, name: e.target.value })}
+                    placeholder="Medication Name" 
+                />
+                <input 
+                    value={medication.dosage} 
+                    onChange={(e) => setMedication({ ...medication, dosage: e.target.value })}
+                    placeholder="Dosage" 
+                />
+                <button onClick={handleAddMedication}>Add Medication</button>
+            </div>
+            <ul>
+                {ehr.medications.map((med, index) => (
+                    <li key={index}>{med.name} - {med.dosage}</li>
+                ))}
+            </ul>
+            <button onClick={handleSaveEHR}>Save EHR</button>
+        </div>
+    );
+};
+
+export default EHRManagement;
+
