@@ -22,3 +22,16 @@ router.put('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+//Initiate m-pesa payment
+const mpesaService = require('../services/mpesaService');
+
+router.post('/payment', async (req, res) => {
+    const { phoneNumber, amount } = req.body;
+    try {
+        const paymentResponse = await mpesaService.initiatePayment(phoneNumber, amount);
+        res.json(paymentResponse.data);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
