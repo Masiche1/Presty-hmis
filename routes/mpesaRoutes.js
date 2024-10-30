@@ -2,6 +2,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const config = require('../config/config'); // Import configuration
+const { handlePaymentNotification } = require('../controllers/mpesaController');
 const router = express.Router();
 
 // M-Pesa payment notification callback route
