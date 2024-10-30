@@ -2,6 +2,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const userRoute = require('./routes/userRoute');
+const groupRoute = require('./routes/groupRoute');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 
@@ -16,7 +18,11 @@ const pharmacyRoutes = require('./routes/pharmacyRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const priceListRoutes = require('./routes/priceListRoutes');
 const mpesaRoutes = require('./routes/mpesaRoutes');
-
+const userRoutes = require('./routes/serRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+const ehrRoutes = require('./routes/ehrRoutes');
+const paymentNotificationCallbackRoutes = require('./routes/paymentNotificationCallbackRoutes');
+const inpatientRoutes = require('./routes/inpatientRoutes');
 // Setting up the Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,7 +47,11 @@ app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/price-list', priceListRoutes);
 app.use('/api/mpesa', mpesaRoutes);
-
+app.use('/api', userRoute);
+app.use('/api', groupRoute);
+app.use('/api', inpatientRoute);
+app.use('/api', ehrRoute);
+app.use('/api', paymentNotifiationCallbackRoute);
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
