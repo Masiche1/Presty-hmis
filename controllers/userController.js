@@ -5,9 +5,11 @@ const User = require('../models/userModel');
 exports.createUser = async (req, res) => {
     const { username, password } = req.body;
     // Implement password hashing here
+try {
+        const saltRounds = 10; // Number of rounds to use for hashing
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    try {
-        const newUser = new User({ username, password });
+        const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
         res.status(201).json(newUser);
     } catch (error) {
