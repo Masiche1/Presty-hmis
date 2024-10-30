@@ -26,3 +26,27 @@ exports.getUsers = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// User login
+exports.loginUser = async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Compare the hashed password with the password provided
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // If successful, return user data without the password
+        user.password = undefined; // Optionally omit password
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
