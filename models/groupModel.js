@@ -1,4 +1,4 @@
-// models/group.js
+// models/groupModel.js
 const mongoose = require('mongoose');
 
 // Define the Group schema
