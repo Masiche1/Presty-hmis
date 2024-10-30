@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Billing = require('../models/Billing');
+const app = express();
+const PORT = process.env.PORT || 5000
 
 // Create Invoice
 router.post('/', async (req, res) => {
@@ -34,4 +36,17 @@ router.post('/payment', async (req, res) => {
     } catch (error) {
         res.status(500).send(error.message);
     }
+});
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Callback route
+app.post('/callback', (req, res) => {
+    const data = req.body; // Access the callback data
+    console.log('Received callback:', data);
+
+    // Process the callback data as needed
+
+    // Respond to the callback
+    res.status(200).send('Callback received successfully');
 });
