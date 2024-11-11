@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Services & Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .consultation {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            position: center;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: -ms-inline-flexbox;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        btn {
+            display: flex;
+            margin: 50px;
+        } 
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consultation Services</h1>
+    <div class="card">
+        <h2 id="formTitle">Add New Consultatin</h2>
+        <form id="consultationForm">
+            <div class="form-group">
+            <label for="patientId">Patient Id:</label>
+            <input type="number" id="patientId" placeholder="Patient ID" required />
+            </div>
+            <div class="form-group">
+            <label for="serviceId">Service Id:</label>
+            <input type="number" id="serviceId" placeholder="Service ID" required />
+            </div>
+            <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required />
+            </div>
+            
+        </form>
+        <div>
+            <div class="form-group">
+                <label for="patientName">Patient Name:</label>
+                <input type="text" id="patientName" />
+            </div>
+              
+            <div class="form-group">
+                <label for="patientId">Patient ID:</label>
+                <input type="text" id="patientId" placeholder="Enter Patient ID" /><br>
+            </div>
+    
+        </div>
+        <div>
+            <button type="submit">Add Consultation</button>
+        </div>
+             <h2>Consultation Notes:</h2>
+              <div>
+               <textarea id="consultationNotes" placeholder="Enter Consultation Notes"></textarea><br>
+                </div>
+                <div>
+                <button onclick="saveConsultationNotes()">Save Notes</button>
+                </div>
+                </div>
+                <div class="card"> 
+                    <h2>Diagnosis Summary:</h2>
+               <div>
+               <div class="form-group">
+               <input type="text" id="patientDiagnosis" placeholder="Write Diagnosis Summary" required />
+            </div>
+            
+        </div>
+       <div>   
+      </div>
+    <div class="btn">
+       <button onclick="saveData()">Save & Next</button>
+       <button onclick="sendToCashier()">Send to Cashier</button>  
+       <button onclick="sendToLab()">Send to Lab</button>
+       <button onclick="sendToPharmacy()">Send to Pharmacy</button>
+   </div>
+  </div>            
+   </div>
+   <div>
+ </div>
+ </div>
+</div>
+    
+    
+      <hr>
+
+    <div id="consultationsList"></div>
+
+
+    
+
+    <hr>
+     
+    <div class="card">
+        <h2>Search Patient</h2>
+        <div class="form-group">
+            <input type="text" id="searchName" placeholder="Enter patient name" />
+        </div>
+        <button onclick="searchPatient()">Search</button>
+    </div> 
+
+    <div id="searchResults"></div>
+
+    <script>
+         async function saveData() {
+            const patientName = document.getElementById('patientName').value;
+            const patientId = document.getElementById('patientId').value;
+            const opdNumber = document.getElementById('opdNumber').value;
+            const iddNumber = document.getElementById('idNumber').value;
+            const contact = document.getElementById('patientContact').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const diagnosis = document.getElementById('patientDiagnosis').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
+
+            const patientData = {
+                name: patientName,
+                patientId: patientId,
+                contact: patientContact,
+                opdNumber: opdNumber,
+                idNumber: idNumber,
+                age: patientAge,
+                gender: patientGender,
+                diagnosis: patientDiagnosis,
+                paymentStatus: paymentStatus,
+                // Retrieve other existing patient data if needed
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/patients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Saved: ${data.name}`);
+                    window.location.href = 'cashier.html'; // Redirect to cashier
+                } else {
+                    alert('Failed to save patient data.');
+                }
+            } catch (error) {
+                console.error('Error saving patient data:', error);
+            }
+        }
+
+        async function searchPatient() {
+            const searchName = document.getElementById('searchName').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/search?name=${searchName}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = patient.name; // You can add more fields as needed
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+
+        const consultationForm = document.getElementById('consultationForm');
+        const consultationsList = document.getElementById('consultationsList');
+
+        // Fetch existing consultations
+        async function fetchConsultations() {
+            const response = await fetch('http://localhost:3000/api/consultations');
+            const consultations = await response.json();
+            consultationsList.innerHTML = consultations.map(consultation => `
+                <div class="consultation">
+                    <h3>Consultation for Patient ID: ${consultation.patientId}</h3>
+                    <p>Service ID: ${consultation.serviceId}</p>
+                    <p>Date: ${consultation.date}</p>
+                    <button onclick="deleteConsultation(${consultation.id})">Delete Consultation</button>
+                    <form onsubmit="addNoteForConsultation(event, ${consultation.id})">
+                        <textarea placeholder="Add a note..."></textarea>
+                        <button type="submit">Add Note</button>
+                    </form>
+                    <div class="notes" id="notes-${consultation.id}"></div>
+                </div>
+            `).join('');
+            consultations.forEach(consultation => fetchNotes(consultation.id));
+        }
+
+        // Add a new consultation
+        consultationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const patientId = patientId.value;
+            const serviceId = serviceId.value;
+            const date = date.value;
+
+            await fetch('http://localhost:3000/api/consultations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ patientId, serviceId, date })
+            });
+
+            consultationForm.reset();
+            fetchConsultations();
+        });
+
+        // Delete a consultation
+        async function deleteConsultation(consultationId) {
+            await fetch(`http://localhost:3000/api/consultations/${consultationId}`, {
+                method: 'DELETE'
+            });
+            fetchConsultations();
+        }
+
+        // Add a note for a specific consultation
+        async function addNoteForConsultation(e, consultationId) {
+            e.preventDefault();
+            const note = e.target.querySelector('textarea').value;
+
+            await fetch(`http://localhost:3000/api/consultations/${consultationId}/notes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ note })
+            });
+
+            e.target.reset();
+            fetchNotes(consultationId);
+        }
+
+        // Fetch notes for a consultation
+        async function fetchNotes(consultationId) {
+            const response = await fetch(`http://localhost:3000/api/consultations/${consultationId}/notes`);
+            const notes = await response.json();
+            const notesDiv = document.getElementById(`notes-${consultationId}`);
+            notesDiv.innerHTML = notes.map(note => `<div>${note.content}</div>`).join('');
+        }
+
+        // Initial fetch of consultations
+        fetchConsultations();
+        const consultationApiUrl = 'http://localhost:3000/api/patients/consutation';
+        const offlineKey = 'offlineConsultation';
+
+        // Save consultation notes
+        async function consultationNotes() {
+            const patientName = document.getElementById('patientName').value;
+            const opdNumber = document.getElementById('opdNumber').value;
+            const iddNumber = document.getElementById('idNumber').value;
+            const contact = document.getElementById('patientContact').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const diagnosis = document.getElementById('patientDiagnosis').value;
+            const consultationNotes = document.getElementById('consultationNotes').value;
+
+            const consultationData = {
+                name: patientName,
+                contact: patientContact,
+                opdNumber: opdNumber,
+                idNumber: idNumber,
+                age: patientAge,
+                gender: patientGender,
+                diagnosis: patientDiagnosis,
+                consultationNotes: consultationNotes
+                // You can add other fields as you collect them in later steps
+                
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(consultationApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(consultationData)
+                    });
+                    const savedConsultation = await response.json();
+                    console.log('Consultation notes saved:', savedConsultation);
+                    alert('Consultation Notes Saved');
+                } catch (error) {
+                    console.error('Failed to save consultation notes on server:', error);
+                    saveOfflineData(offlineKey, ConsultationData);
+                }
+            } else {
+                saveOfflineData(offlineKey, consultationData);
+                alert('Consultation notes saved locally due to no internet connection.');
+            }
+        }
+
+        // Sync offline consultation data when the app goes online
+        setupSyncOnOnline(consultationApiUrl, offlineKey);
+    </script>
+</body>
+</html>
+

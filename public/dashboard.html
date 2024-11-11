@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav {
+            width: 200px;
+            background-color: hsl(210, 94%, 37%);
+            color: white;
+            padding: 15px;
+            height: 100vh;
+        }
+        nav h2 {
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        nav a:hover {
+            background-color: #495057;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h2>Dashboard</h2>
+        <a href="patient-registration.html">Patients Registration</a>
+        <a href="consultation.html">Consultation Services</a>
+        <a href="triage.html">Triage Services</a>
+        <a href="nursingServices.html">Nursing Services</a>
+        <a href="lab.html">Lab Services</a>
+        <a href="pharmacy.html">Pharmacy Services</a>
+        <a href="administration.html">Administration Services</a>
+        <a href="hr.html">HR Services</a>
+        <a href="billing.html">Billing Services</a>
+        <a href="reports.html">Statistics & Reports</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+
+   <div class="content" id="dashboardContent">
+        <h1>Welcome to the Dashboard</h1>
+        <div class="card">
+            <h2>Overview</h2>
+            <p id="overviewContent">Here you can select your role-based services.</p>
+        </div>
+        <div class="card" id="additionalContent">
+            <!-- Additional content can be dynamically loaded here -->
+            <p id="overviewContent">Please offer your best to the community</p> 
+        </div>
+    </div>
+
+    <script>
+        const additionalContent = document.getElementById('additionalContent');
+
+        // Function to fetch and display patients
+        async function fetchPatients() {
+            const response = await fetch('http://localhost:3000/api/patients');
+            const patients = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewPatients">Registered Patients</h2>
+                <ul>
+                    ${patients.map(patient => `<li>${patient.name} (ID: ${patient.id})</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display services
+        async function fetchServices() {
+            const response = await fetch('http://localhost:3000/api/services');
+            const services = await response.json();
+            additionalContent.innerHTML = `
+                <h2>Services</h2>
+                <ul>
+                    ${services.map(service => `
+                        <li>Patient ID: ${service.patientId}, Service: ${service.name}, Date: ${service.date}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display nursing services
+        async function fetchNursingServices() {
+            const response = await fetch('http://localhost:3000/api/nursing-services');
+            const nursingServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewNursing">Nursing Services</h2>
+                <ul>
+                    ${nursingServices.map(service => `
+                        <li>Patient ID: ${service.patientId}, Service: ${service.name}, Date: ${service.date}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display lab services
+        async function fetchLabServices() {
+            const response = await fetch('http://localhost:3000/api/lab-services');
+            const labServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewLab">Lab Services</h2>
+                <ul>
+                    ${labServices.map(service => `
+                        <li>Patient ID: ${service.patientId}, Test: ${service.testName}, Result: ${service.result}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display consultation services
+        async function fetchConsultationServices() {
+            const response = await fetch('http://localhost:3000/api/consultations');
+            const consultations = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewConsultation">Consultation Services</h2>
+                <ul>
+                    ${consultations.map(consultation => `
+                        <li>Patient ID: ${consultation.patientId}, Notes: ${consultation.notes}, Date: ${consultation.date}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display pharmacy services
+        async function fetchPharmacyServices() {
+            const response = await fetch('http://localhost:3000/api/pharmacy-services');
+            const pharmacyServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewPharmacy">Pharmacy Services</h2>
+                <ul>
+                    ${pharmacyServices.map(service => `
+                        <li>Patient ID: ${service.patientId}, Medication: ${service.medicationName}, Quantity: ${service.quantity}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display HR services
+        async function fetchHRServices() {
+            const response = await fetch('http://localhost:3000/api/hr-services');
+            const hrServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewHR">HR Services</h2>
+                <ul>
+                    ${hrServices.map(service => `
+                        <li>Employee ID: ${service.employeeId}, Name: ${service.name}, Position: ${service.position}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display billing services
+        async function fetchBillingServices() {
+            const response = await fetch('http://localhost:3000/api/billing-services');
+            const billingServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewBilling">Billing Services</h2>
+                <ul>
+                    ${billingServices.map(billing => `
+                        <li>Patient ID: ${billing.patientId}, Amount: $${billing.amount}, Status: ${billing.status}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display administration services
+        async function fetchAdminServices() {
+            const response = await fetch('http://localhost:3000/api/admin-services');
+            const adminServices = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewAdministration">Administration Services</h2>
+                <ul>
+                    ${adminServices.map(service => `
+                        <li>Service Name: ${service.name}, Details: ${service.details}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Function to fetch and display statistics and reports
+        async function fetchStatsReports() {
+            const response = await fetch('http://localhost:3000/api/stats-reports');
+            const stats = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewStats">Statistics & Reports</h2>
+                <p>Total Patients: ${stats.totalPatients}</p>
+                <p>Total Services: ${stats.totalServices}</p>
+                <p>Pending Bills: ${stats.pendingBills}</p>
+                <!-- Add more statistics as needed -->
+            `;
+        }
+
+        // Function to fetch and display triage information
+        async function fetchTriage() {
+            const response = await fetch('http://localhost:3000/api/triage');
+            const triageInfo = await response.json();
+            additionalContent.innerHTML = `
+                <h2 id="viewServices">Triage Information</h2>
+                <ul>
+                    ${triageInfo.map(item => `
+                        <li>Patient ID: ${item.patientId}, Triage Level: ${item.level}, Date: ${item.date}</li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Set up event listeners for all links
+        document.getElementById('viewPatients').addEventListener('click', fetchPatients);
+        document.getElementById('viewServices').addEventListener('click', fetchServices);
+        document.getElementById('viewNursing').addEventListener('click', fetchNursingServices);
+        document.getElementById('viewLab').addEventListener('click', fetchLabServices);
+        document.getElementById('viewConsultation').addEventListener('click', fetchConsultationServices);
+        document.getElementById('viewPharmacy').addEventListener('click', fetchPharmacyServices);
+        document.getElementById('viewHR').addEventListener('click', fetchHRServices);
+        document.getElementById('viewBilling').addEventListener('click', fetchBillingServices);
+        document.getElementById('viewAdmin').addEventListener('click', fetchAdminServices);
+        document.getElementById('viewStats').addEventListener('click', fetchStatsReports);
+        document.getElementById('viewTriage').addEventListener('click', fetchTriage);
+
+        document.getElementById('logout').addEventListener('click', () => {
+            alert('You have logged out.');
+            window.location.href = 'login.html'; // Redirect to login page
+        });   
+        document.getElementById('logout').addEventListener('click', () => {
+            alert('You have logged out.');
+            window.location.href = 'login.html'; // Redirect to login page
+        });
+        document.getElementById('logout').addEventListener('click', () => {
+            alert('You have logged out.');
+            window.location.href = 'login.html'; // Redirect to login page
+        });
+        document.getElementById('logout').addEventListener('click', () => {
+            alert('You have logged out.');
+            window.location.href = 'login.html'; // Redirect to login page
+        });
+    </script>
+</body>
+</html>

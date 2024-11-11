@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .card {
+            width: 40%;
+            background-color: #3979b9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(219, 144, 144, 0.1);
+            width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .container {
+            background-color: rgb(44, 121, 194);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h2 {
+            text-align: center;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        .step {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        
+        button {
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .login {
+            display: block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hospital Details Section -->
+    <div id="hospital-details">
+        <h1>Welcome to Presty HealthCare Center</h1>
+        <div class="card">
+            <p><strong>Address:</strong>P.O. BOX 12-40305, Mbita, Homa Bay, Kenya</p>
+            <p><strong>Email:</strong> prestyhealthcare2021@gmail.com</p>
+            <p><strong>Website:</strong> <a href="http://www.prestyhealthcareorg.org" target="_blank">www.prestyhealthcareorg.org</a></p>
+            <p><strong>Contact:</strong> +254 789 264755</p>
+        </div>
+        <h2>Hospital Facilities</h2>
+        <div class="container">
+            <ul>
+                <li>Outpatient Clinics</li>
+                <li>Emergency Services</li>
+                <li>General Surgery</li>
+                <li>Orthopedic Care</li>
+                <li>Pharmacy</li>
+                <li>Laboratory Services</li>
+                <li>Inpatient Clinics</li>
+            </ul>
+        </div>
+        
+    </div>
+
+    <hr>
+
+    <!-- Main Content Section -->
+    <div id="main-content">
+        <div class="container">
+        <h2>HMIS System Dashboard</h2>
+        <p>Presty Hospital Management Information System </p>
+        <button onclick="loadData()">Load Data</button>
+        </div>
+    </div>
+
+    <hr>
+
+    <h1>Patient Flow Process</h1>
+    <div class="container">
+        <div id="roleSelection" class="active">
+            <h2>Select Role:</h2>
+            <select id="role" onchange="setRole()">
+                <option value="none" selected>Select a role</option>
+                <option value="registrar">Registrar</option>
+                <option value="admin">Administrator</option>
+                <option value="hr">HR</option>
+                <option value="cashier">Cashier</option>
+                <option value="nurse">Nurse</option>
+                <option value="doctor">Doctor</option>
+                <option value="lab_tech">Lab Technician</option>
+                <option value="pharmacist">Pharmacist</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="login-container">
+    
+    <div id="login" class="login active">
+        <h2>Login</h2>
+      <div class="form-group">
+        <form id="loginForm">
+            <label for="username">Username:</label>
+           <input type="text" id="username" placeholder="Username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Password" required />
+        </div>
+        <button onclick="login()">Login</button>
+        </form>
+    </div>
+   <p class="error" id="errorMessage"></p>
+</div>
+   
+        
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Redirect to the dashboard or homepage upon successful login
+                    alert('Login successful!');
+                    window.location.href = users[role].page;
+                    return; // Adjust to your dashboard page
+                } else {
+                    const errorData = await response.json();
+                    errorMessage.textContent = errorData.message || 'Invalid username or password';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred. Please try again.';
+            }
+            alert('Invalid username or password');
+        });
+        let currentStepIndex = 0;
+        const steps = [
+            { id: "registry", role: "registrar" },
+            { id: "cashier", role: "cashier" },
+            { id: "triage", role: "nurse" },
+            { id: "consultation", role: "doctor" },
+            { id: "lab", role: "lab_tech" },
+            { id: "nursing", role: "nurse" },
+            { id: "pharmacy", role: "pharmacist" },
+            { id: "doctor_review", role: "doctor" }
+        ];
+
+        const patientData = {};
+        let currentRole = null;
+        let loggedIn = false;
+
+        const users = {
+            'registrar': { username: 'registrar', password: 'pass123', page: 'registry.html' },
+            'cashier': { username: 'cashier', password: 'pass123', page: 'billing.html' },
+            'admin': { username: 'administrator', password: 'pass123', page: 'administration.html' },
+            'hr': { username: 'hr', password: 'pass123', page: 'hr.html' },
+            'nurse': { username: 'nurse', password: 'pass123', page: 'triage.html' },
+            'doctor': { username: 'doctor', password: 'pass123', page: 'consultation.html' },
+            'lab_tech': { username: 'labtech', password: 'pass123', page: 'lab.html' },
+            'pharmacist': { username: 'pharmacist', password: 'pass123', page: 'pharmacy.html' }
+        };
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            for (const role in users) {
+                if (users[role].username === username && users[role].password === password) {
+                    loggedIn = true;
+                    alert(`Logged in as ${role}`);
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('roleSelection').style.display = 'block';
+                    return;
+                }
+            }
+            alert('Invalid username or password');
+        }
+
+        function setRole() {
+            currentRole = document.getElementById("role").value;
+            resetFlow();
+        }
+
+        function resetFlow() {
+            currentStepIndex = 0;
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(steps[currentStepIndex].id).classList.add('active');
+        }
+
+        function saveData(step, nextStep, role) {
+            const expectedStep = steps[currentStepIndex].id;
+
+            if (step === expectedStep && role === steps[currentStepIndex].role) {
+                // Save the patient's medical information based on the current step
+                switch (step) {
+                    case 'registry':
+                        patientData.name = document.getElementById("patientName").value;
+                        break;
+                    case 'cashier':
+                        patientData.paymentStatus = document.getElementById("paymentStatus").value;
+                        break;
+                    case 'triage':
+                        patientData.triageNotes = document.getElementById("triageNotes").value;
+                        break;
+                    case 'consultation':
+                        patientData.consultationNotes = document.getElementById("consultationNotes").value;
+                        break;
+                    case 'lab':
+                        patientData.labResults = document.getElementById("labResults").value;
+                        break;
+                    case 'pharmacy':
+                        patientData.medicationDetails = document.getElementById("medicationDetails").value;
+                        break;
+                    case 'nursing':
+                        patientData.nursingNotes = document.getElementById("nursingNotes").value;
+                        break;
+                    case 'doctor_review':
+                        patientData.doctorNotes = document.getElementById("doctorNotes").value;
+                        break;
+                }
+
+                document.getElementById(expectedStep).classList.remove("active");
+                currentStepIndex++;
+
+                if (currentStepIndex < steps.length) {
+                    document.getElementById(steps[currentStepIndex].id).classList.add("active");
+                } else {
+                    document.getElementById("complete").classList.add("active");
+                }
+            } else {
+                alert(`Error: Expected ${steps[currentStepIndex].role} to proceed to ${expectedStep}, but got ${role}.`);
+            }
+        }
+    </script>
+</body>
+</html>

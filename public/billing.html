@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 90%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        button {
+            margin-top: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        btn {
+            display: flex;
+            margin: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cashier Services</h1>
+
+    <hr>
+     
+    <div class="card">
+        <h2>Search Patient</h2>
+        <div class="form-group">
+            <input type="text" id="searchName" placeholder="Enter patient Name" />
+        </div>
+        
+        <button onclick="searchPatient()">Search</button>
+    
+        <div id="searchResults"></div>
+    </div>
+    
+    <div class="card">
+        <h2>New Patient Billing</h2>
+        <div class="form-group">
+            <label for="patientId">Patient Id:</label>
+            <input type="number" id="patientId" placeholder="Patient ID"/>
+        </div>
+        <div class="form-group">
+            <label for="patientName">Patient Name:</label>
+            <input type="text" id="patientName" placeholder="Patient Name"/>
+      </div>
+      <button onclick="saveData()">Save & Next</button>
+    </div>
+        <div class="card">
+            <h2>Billing System</h2>
+            <form id="billingForm">
+                <div class="form-group">
+                    <label for="contact">Patient Contact:</label>
+                <input type="text" id="contact" placeholder="Contact" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Email" required>
+                </div>
+            </form>
+            <div class="form-group">
+                <label for="paymentStatus">Payment Status:</label>
+                <input type="text" id="paymentStatus" placeholder="Payment Status"/>
+            </div>
+        </div>
+        <button onclick="saveData()">Save & Next</button>
+        <div class="card">
+            <div id="productSection" class="hidden">
+                <h2>Services Summary</h2>
+                <ul id="productList"></ul>
+                <h3>Invoice Summary</h3>
+                <ul id="invoiceSummary"></ul>
+                <h4>Total: $<span id="totalAmount">0.00</span></h4>
+                <button id="payButton" class="hidden">Pay Now</button>
+            </div>
+        </div>   
+        </div>
+        </div>
+        
+    <script>
+
+        async function searchPatient() {
+            const searchName = document.getElementById('searchName').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/search?name=${searchName}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = patient.name; // You can add more fields as needed
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+
+        async function saveData() {
+            const patientName = document.getElementById('patientName').value;
+            const opdNumber = document.getElementById('opdNumber').value;
+            const iddNumber = document.getElementById('idNumber').value;
+            const contact = document.getElementById('patientContact').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const diagnosis = document.getElementById('patientDiagnosis').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
+
+            const patientData = {
+                name: patientName,
+                contact: patientContact,
+                opd: opdNumber,
+                id: idNumber,
+                age: patientAge,
+                gender: patientGender,
+                diagnosis: patientDiagnosis,
+                payment: paymentStatus,
+                // Retrieve other existing patient data if needed
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/patients', {
+                    method: 'PATCH', // Use PATCH to update the existing patient data
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    alert(`Saved: ${paymentStatus}`);
+                    window.location.href = 'triage.html'; // Redirect to triage
+                } else {
+                    alert('Failed to save payment status.');
+                }
+            } catch (error) {
+                console.error('Error saving payment status:', error);
+            }
+        }
+        const paymentApiUrl = 'http://localhost:3000/api/patients/pay';
+        const offlineKey = 'offlinePayments';
+
+        // Save payment details
+        async function processPayment() {
+            const patientId = document.getElementById('patientId').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
+
+            const paymentData = {
+                patientId,
+                paymentStatus
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(paymentApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(paymentData)
+                    });
+                    const savedPayment = await response.json();
+                    console.log('Payment processed:', savedPayment);
+                    alert('Payment Processed Successfully');
+                } catch (error) {
+                    console.error('Failed to save payment on server:', error);
+                    saveOfflineData(offlineKey, paymentData);
+                }
+            } else {
+                saveOfflineData(offlineKey, paymentData);
+                alert('Payment saved locally due to no internet connection.');
+            }
+        }
+
+        // Sync offline payments when the app goes online
+        setupSyncOnOnline(paymentApiUrl, offlineKey);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

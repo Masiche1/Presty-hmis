@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="App.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            width: 90%;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn {
+            display: flex;
+            margin: 5px;
+        }
+        textarea {
+            width: 91%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 90%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Form to add a new user -->
+    <h1>Admin Dashboard</h1>
+    <div class="container">
+        <div class="card">
+            <h2>Create New User</h2>
+
+        <form id="createUserForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter Name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="example@gmail.com" required>
+             </div>
+
+             <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter Password" required>
+             </div>
+             <div class="form-group">
+                <label for="role">Role:</label>
+                <select id="role">
+                    <option value="registrar">Registrar</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="nurse">Nurse</option>
+                    <option value="pharmacist">Pharmacist</option>
+                    <option value="labTech">Lab-Tech</option>
+                    <option value="cashier">Cashier</option>
+                    <option value="support">Support</option>
+                    <option value="hr">HR</option>
+                    <option value="admin">Admin</option>
+                </select><br>
+            </div>
+            
+        </form>
+        <div class="btn">
+            <button onclick="saveUser()">Create User</button>
+            <button onclick="saveUser()">Add User</button>
+        </div>
+        
+    </div>
+    </div>
+        
+    <div>
+ 
+<!-- User Management Section -->
+<div class="container">
+    <div class="card">
+        <div>
+            <h2>Manage User</h2>
+          </div>
+            <div class="form-group">
+            <label for="searchUser">Search User (Username or ID):</label>
+            <input type="text" id="searchUser" placeholder="Search by Username or ID" />
+         </div>
+        <div>
+            <button onclick="searchUser()">Search</button>
+    </div>
+           
+    <div id="userResults"></div>
+    </div>
+   
+
+    <!-- Form to update a user's data -->
+    <div class="container">
+        <div class="card">
+            <div>
+                <h2>Update User</h2>
+             </div>
+              <div class="form-group">
+                <label for="updateUsername">Username:</label>
+                <input type="text" id="updateUsername" placeholder="Enter Username to update" /><br>
+               </div>
+            
+                <div>
+        
+                 </div>
+                 <div class="form-group"></div>
+                  <label for="updateRole">Role:</label>
+                  <select id="updateRole">
+                     <option value="registrar">Registrar</option>
+                     <option value="doctor">Doctor</option>
+                     <option value="nurse">Nurse</option>
+                     <option value="pharmacist">Pharmacist</option>
+                     <option value="labTech">Lab Tech</option>
+                     <option value="cashier">Cashier</option>
+                     <option value="support">Support</option>
+                     <option value="hr">HR</option>
+                     <option value="admin">Admin</option>
+                  </select><br>
+                </div>
+               <div>
+             </div>
+            <div>
+        </div>
+        <div class="btn">
+        <button onclick="updateUser()">Update User</button>
+        <button onclick="archiveUser()">Archive User</button>
+        <button onclick="deleteUser()">Delete User</button>
+    </div>
+    </div>
+   
+
+    <!-- Employee Management Section -->
+    <div class="container">
+        <div class="card">
+            <div>
+                <h2>Manage Employees</h2>
+             </div>
+             <div class="form-group">
+                <label for="searchEmployee">Search Employee (ID or Name):</label>
+                <input type="text" id="searchEmployee" placeholder="Search by ID or Name" />
+              </div>
+            
+             <div>
+                <button onclick="searchEmployee()">Search</button>
+            </div>
+        </div>
+    
+    
+    <div id="employeeResults"></div>
+
+    <!-- Form to update an employee's data -->
+    <div class="container">
+        <div class="card">
+            <div>
+              <h2>Update Employee</h2>
+              </div>
+               <div class="form-group">
+                <label for="updateEmployeeId">Employee ID:</label>
+                <input type="text" id="updateEmployeeId" placeholder="Enter Employee ID to update" /><br>
+              </div>
+             <div>
+        </div>
+   
+        <div class="btn">
+            <button onclick="updateEmployee()">Update Employee</button>
+           <button onclick="archiveEmployee()">Archive Employee</button>
+           <button onclick="deleteEmployee()">Delete Employee</button>
+       </div>
+       <div>
+    </div>
+    <div>
+        </div>
+          <div class="form-group"></div>
+           <table id="userTable">
+               <thead>
+                   <tr>
+                       <th>Name</th>
+                       <th>Email</th>
+                       <th>Username</th>
+                       <th>Role</th>
+                       <th>Actions</th>
+                   </tr>
+               </thead>
+               <tbody id="userList"></tbody>
+           </table>
+       </div>
+    </div>
+    
+
+        <hr>
+
+<div class="container">
+    <div class="card">
+        <div>
+            <h2>Search Patient</h2>
+         </div>
+           <div class="form-group">
+            <input type="text" id="searchName" placeholder="Enter patient name" />
+           </div>
+          <div>
+            <button onclick="searchPatient()">Search</button>
+          </div>
+        
+        <hr>
+    
+    <div id="searchResults"></div>
+</div>
+    
+
+     <!-- Form to update system settings -->
+     <div class="container">
+        <div class="card">
+            <div>
+                <h2>Update System Settings</h2>
+             </div>
+             <div class="form-group">
+                <label for="settings">System Setting:</label>
+                <textarea id="settings" placeholder="Enter system-wide settings or configurations"></textarea><br>
+              </div>
+            
+              <div>
+                <button onclick="updateSettings()">Save Settings</button>
+              </div>
+            
+            </div> 
+        </div>
+    
+
+        <script>
+
+         // Admin API URLs
+        const userApiUrl = 'http://localhost:3000/api/admin/users';
+        const settingsApiUrl = 'http://localhost:3000/api/admin/settings';
+        
+        const offlineKeyUser = 'offlineUserData';
+        const offlineKeySettings = 'offlineSystemSettings';
+
+        // Save new user data
+        async function saveUser() {
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const userData = {
+                username,
+                email,
+                role,
+                password
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(userApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    const savedUser = await response.json();
+                    console.log('User added:', savedUser);
+                    alert('User Added');
+                } catch (error) {
+                    console.error('Failed to add user on server:', error);
+                    saveOfflineData(offlineKeyUser, userData);
+                }
+            } else {
+                saveOfflineData(offlineKeyUser, userData);
+                alert('User data saved locally due to no internet connection.');
+            }
+        }
+
+        // Save system settings
+        async function updateSettings() {
+            const settings = document.getElementById('settings').value;
+
+            const systemSettings = { settings };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(settingsApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(systemSettings)
+                    });
+                    const savedSettings = await response.json();
+                    console.log('System settings updated:', savedSettings);
+                    alert('System Settings Updated');
+                } catch (error) {
+                    console.error('Failed to update settings on server:', error);
+                    saveOfflineData(offlineKeySettings, systemSettings);
+                }
+            } else {
+                saveOfflineData(offlineKeySettings, systemSettings);
+                alert('Settings saved locally due to no internet connection.');
+            }
+        }
+
+        // Set up synchronization for offline data when the system goes online
+        setupSyncOnOnline(userApiUrl, offlineKeyUser);
+        setupSyncOnOnline(settingsApiUrl, offlineKeySettings);
+            
+        async function saveData() {
+            const patientName = document.getElementById('patientName').value;
+
+            const patientData = {
+                name: patientName,
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/patients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Saved: ${data.name}`);
+                    window.location.href = 'cashier.html'; // Redirect to cashier
+                } else {
+                    alert('Failed to save patient data.');
+                }
+            } catch (error) {
+                console.error('Error saving patient data:', error);
+            }
+        }
+
+        async function searchPatient() {
+            const searchName = document.getElementById('searchName').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/search?name=${searchName}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = patient.name;
+                        li.textContent = patient.patienId;
+                        li.textContent = patient.email;
+                        li.textContent = patient.contact;
+                        li.textContent = patient.opdNumber;// You can add more fields as needed
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+        const patientApiUrl = 'http://localhost:5000/api/admin/patients';
+        const employeeApiUrl = 'http://localhost:5000/api/admin/employees';
+
+        // Save new user data
+        async function saveUser() {
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+
+            const userData = {
+                username,
+                role,
+                password
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(userApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    const savedUser = await response.json();
+                    alert('User Added');
+                } catch (error) {
+                    saveOfflineData('offlineUserData', userData);
+                    alert('User data saved locally due to no internet connection.');
+                }
+            }
+        }
+
+        // Search User
+        async function searchUser() {
+            const query = document.getElementById('searchUser').value;
+
+            const response = await fetch(`${userApiUrl}/search?query=${query}`);
+            const users = await response.json();
+
+            const userResultsDiv = document.getElementById('userResults');
+            userResultsDiv.innerHTML = users.map(user => `
+                <div>
+                    <h4>${user.username}</h4>
+                    <p>Role: ${user.role}</p>
+                    <button onclick="loadUserData('${user.id}')">Select</button>
+                </div>
+            `).join('');
+        }
+
+        // Load User Data into Update Form
+        async function loadUserData(userId) {
+            const response = await fetch(`${userApiUrl}/${userId}`);
+            const user = await response.json();
+
+            document.getElementById('updateUsername').value = user.username;
+            document.getElementById('updateRole').value = user.role;
+        }
+
+        // Update User
+        async function updateUser() {
+            const username = document.getElementById('updateUsername').value;
+            const role = document.getElementById('updateRole').value;
+
+            const updatedUser = {
+                username,
+                role
+            };
+
+            const response = await fetch(`${userApiUrl}/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedUser)
+            });
+
+            if (response.ok) {
+                alert('User Updated');
+            } else {
+                alert('Failed to update user');
+            }
+        }
+
+        // Archive User
+        async function archiveUser() {
+            const username = document.getElementById('updateUsername').value;
+
+            const response = await fetch(`${userApiUrl}/archive`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            });
+
+            if (response.ok) {
+                alert('User Archived');
+            } else {
+                alert('Failed to archive user');
+            }
+        }
+
+        // Delete User
+        async function deleteUser() {
+            const username = document.getElementById('updateUsername').value;
+
+            const response = await fetch(`${userApiUrl}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            });
+
+            if (response.ok) {
+                alert('User Deleted');
+            } else {
+                alert('Failed to delete user');
+            }
+        }
+
+        // Search Employee
+        async function searchEmployee() {
+            const query = document.getElementById('searchEmployee').value;
+
+            const response = await fetch(`${employeeApiUrl}/search?query=${query}`);
+            const employees = await response.json();
+
+            const employeeResultsDiv = document.getElementById('employeeResults');
+            employeeResultsDiv.innerHTML = employees.map(employee => `
+                <div>
+                    <h4>${employee.name}</h4>
+                    <p>Role: ${employee.role}</p>
+                    <button onclick="loadEmployeeData('${employee.id}')">Select</button>
+                </div>
+            `).join('');
+        }
+
+        // Load Employee Data into Update Form
+        async function loadEmployeeData(employeeId) {
+            const response = await fetch(`${employeeApiUrl}/${employeeId}`);
+            const employee = await response.json();
+
+            document.getElementById('updateEmployeeId').value = employee.id;
+        }
+
+        // Update Employee
+        async function updateEmployee() {
+            const employeeId = document.getElementById('updateEmployeeId').value;
+            const email = document.getElementById('updateEmail').value;
+            const name = document.getElementById('updateName').value;
+            const role = document.getElementById('updateRole').value;
+            const salary = document.getElementById('updateSalary').value;
+
+            const updatedEmployee = {
+                id: employeeId,
+                name: name,
+                email: email,
+                role: role,
+                salary: salary
+            };
+
+            const response = await fetch(`${employeeApiUrl}/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedEmployee)
+            });
+
+            if (response.ok) {
+                alert('Employee Updated');
+            } else {
+                alert('Failed to update employee');
+            }
+        }
+
+        // Archive Employee
+        async function archiveEmployee() {
+            const employeeId = document.getElementById('updateEmployeeId').value;
+
+            const response = await fetch(`${employeeApiUrl}/archive`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: employeeId })
+            });
+
+            if (response.ok) {
+                alert('Employee Archived');
+            } else {
+                alert('Failed to archive employee');
+            }
+        }
+
+        // Delete Employee
+        async function deleteEmployee() {
+            const employeeId = document.getElementById('updateEmployeeId').value;
+
+            const response = await fetch(`${employeeApiUrl}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: employeeId })
+            });
+
+            if (response.ok) {
+                alert('Employee Deleted');
+            } else {
+                alert('Failed to delete employee');
+            }
+        } 
+      </script>
+    <script src="script.js"></script>
+</body>
+</html>

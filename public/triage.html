@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triage Services</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 91%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Triage Services</h1>
+
+    <div class="card">
+        <h2 id="formTitle">Add Triage Assessment</h2>
+        <div class="form-group">
+            <label for="patientId">Patient ID</label>
+            <input type="text" id="patientId" placeholder="Enter patient ID">
+        </div>
+        <div class="form-group">
+            <label for="symptoms">Symptoms</label>
+            <input type="text" id="symptoms" placeholder="Enter symptoms">
+        </div>
+        <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="bloodPressure">Blood Pressure (mmHg)</label>
+            <input type="text" id="bloodPressure" placeholder="Enter blood pressure">
+        </div>
+        <div class="form-group">
+            <label for="heartRate">Heart Rate (bpm)</label>
+            <input type="number" id="heartRate" placeholder="Enter heart rate">
+        </div>
+        <div class="form-group">
+            <label for="temperature">Temperature (°C)</label>
+            <input type="number" id="temperature" placeholder="Enter temperature" step="0.1">
+        </div>
+        <div class="form-group">
+            <label for="respiratoryRate">Respiratory Rate (breaths/min)</label>
+            <input type="number" id="respiratoryRate" placeholder="Enter respiratory rate">
+        </div>
+        <div class="form-group">
+            <label for="triageNotes">Triage Notes:</label>
+            <textarea id="triageNotes" placeholder="Enter Triage Notes"></textarea><br>
+        </div>
+    
+        <button onclick="saveTriageNotes()">Save Notes</button>
+        <button id="addTriageBtn">Add Triage</button>
+    </div>
+
+    <div class="card">
+        <h2>Triage Assessments</h2>
+        <table id="triageTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient ID</th>
+                    <th>Symptoms</th>
+                    <th>Priority</th>
+                    <th>Blood Pressure</th>
+                    <th>Heart Rate</th>
+                    <th>Temperature</th>
+                    <th>Respiratory Rate</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="triageBody">
+                <!-- Triage rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const triageTableBody = document.getElementById('triageBody');
+        let currentEditingId = null;
+
+        async function fetchTriageAssessments() {
+            const response = await fetch('http://localhost:3000/api/triage');
+            const triageAssessments = await response.json();
+            triageTableBody.innerHTML = triageAssessments.map(assessment => `
+                <tr>
+                    <td>${assessment.id}</td>
+                    <td>${assessment.patientId}</td>
+                    <td>${assessment.symptoms}</td>
+                    <td>${assessment.priority}</td>
+                    <td>${assessment.bloodPressure}</td>
+                    <td>${assessment.heartRate}</td>
+                    <td>${assessment.temperature}</td>
+                    <td>${assessment.respiratoryRate}</td>
+                    <td>
+                        <button onclick="editTriage(${assessment.id}, '${assessment.patientId}', '${assessment.symptoms}', '${assessment.priority}', '${assessment.bloodPressure}', ${assessment.heartRate}, ${assessment.temperature}, ${assessment.respiratoryRate})">Edit</button>
+                        <button onclick="deleteTriage(${assessment.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addTriage() {
+            const patientId = document.getElementById('patientId').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const priority = document.getElementById('priority').value;
+            const bloodPressure = document.getElementById('bloodPressure').value;
+            const heartRate = parseInt(document.getElementById('heartRate').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const respiratoryRate = parseInt(document.getElementById('respiratoryRate').value);
+
+            const response = await fetch('http://localhost:3000/api/triage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ patientId, symptoms, priority, bloodPressure, heartRate, temperature, respiratoryRate })
+            });
+
+            if (response.ok) {
+                fetchTriageAssessments();
+                resetForm();
+            } else {
+                alert('Error adding triage assessment');
+            }
+        }
+
+        async function updateTriage() {
+            const patientId = document.getElementById('patientId').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const priority = document.getElementById('priority').value;
+            const bloodPressure = document.getElementById('bloodPressure').value;
+            const heartRate = parseInt(document.getElementById('heartRate').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const respiratoryRate = parseInt(document.getElementById('respiratoryRate').value);
+
+            const response = await fetch(`http://localhost:3000/api/triage/${currentEditingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ patientId, symptoms, priority, bloodPressure, heartRate, temperature, respiratoryRate })
+            });
+
+            if (response.ok) {
+                fetchTriageAssessments();
+                resetForm();
+            } else {
+                alert('Error updating triage assessment');
+            }
+        }
+
+        async function deleteTriage(id) {
+            const response = await fetch(`http://localhost:3000/api/triage/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                fetchTriageAssessments();
+            } else {
+                alert('Error deleting triage assessment');
+            }
+        }
+
+        function editTriage(id, patientId, symptoms, priority, bloodPressure, heartRate, temperature, respiratoryRate) {
+            currentEditingId = id;
+            document.getElementById('patientId').value = patientId;
+            document.getElementById('symptoms').value = symptoms;
+            document.getElementById('priority').value = priority;
+            document.getElementById('bloodPressure').value = bloodPressure;
+            document.getElementById('heartRate').value = heartRate;
+            document.getElementById('temperature').value = temperature;
+            document.getElementById('respiratoryRate').value = respiratoryRate;
+            document.getElementById('formTitle').innerText = 'Edit Triage Assessment';
+            document.getElementById('addTriageBtn').innerText = 'Update Triage';
+            document.getElementById('addTriageBtn').onclick = updateTriage;
+        }
+
+        function resetForm() {
+            currentEditingId = null;
+            document.getElementById('patientId').value = '';
+            document.getElementById('symptoms').value = '';
+            document.getElementById('priority').value = 'Low';
+            document.getElementById('bloodPressure').value = '';
+            document.getElementById('heartRate').value = '';
+            document.getElementById('temperature').value = '';
+            document.getElementById('respiratoryRate').value = '';
+            document.getElementById('formTitle').innerText = 'Add Triage Assessment';
+            document.getElementById('addTriageBtn').innerText = 'Add Triage';
+            document.getElementById('addTriageBtn').onclick = addTriage;
+        }
+
+        document.getElementById('addTriageBtn').addEventListener('click', addTriage);
+        fetchTriageAssessments();
+        const triageApiUrl = 'http://localhost:5000/api/patients/triage';
+        const offlineKey = 'offlineTriage';
+
+        // Save triage notes
+        async function saveTriageNotes() {
+            const patientId = document.getElementById('patientId').value;
+            const triageBody = document.getElementById('triageBody').value;
+            const triageNotes = document.getElementById('triageNotes').value;
+
+            const triageData = {
+                patientId,
+                triageNotes,
+                triageBody
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(triageApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(triageData)
+                    });
+                    const savedTriage = await response.json();
+                    console.log('Triage notes saved:', savedTriage);
+                    alert('Triage Notes Saved');
+                } catch (error) {
+                    console.error('Failed to save triage notes on server:', error);
+                    saveOfflineData(offlineKey, triageData);
+                }
+            } else {
+                saveOfflineData(offlineKey, triageData);
+                alert('Triage notes saved locally due to no internet connection.');
+            }
+        }
+
+        // Sync offline triage data when the app goes online
+        setupSyncOnOnline(triageApiUrl, offlineKey);
+    </script>
+</body>
+</html>

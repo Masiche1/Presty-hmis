@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Panel - Statistics and Reports</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .consultation {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            position: center;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: -ms-inline-flexbox;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn {
+            display: flex;
+            margin: 50px;
+        } 
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+        <h1>HR Panel - Statistics and Reports</h1>
+
+        <hr>
+
+        <div class="card">
+        <h2>Employee Statistics</h2>
+        <div id="statistics">
+            <canvas id="salaryChart" width="400" height="200"></canvas>
+            <div id="totalEmployees">Total Employees: <span id="employeeCount">0</span></div>
+            <div id="averageSalary">Average Salary: $<span id="avgSalary">0.00</span></div>
+            <div id="designationCount">Designation Count: <span id="designationStats"></span></div>
+        </div>
+
+        <h2>Filter by Role</h2>
+        <select id="designationFilter">
+            <option value="all">All</option>
+            <option value="all">Admin</option>
+            <option value="all">HR</option>
+            <option value="all">Doctor</option>
+            <option value="all">Nurse</option>
+            <option value="all">Registrar</option>
+            <option value="all">Cashier</option>
+            <option value="all">Lab-Tech</option>
+            <option value="all">Pharmacist</option>
+            <option value="all">Support</option>
+        </select>
+        <button id="applyFilterButton">Apply Filter</button>
+        <h2>Payroll Reports</h2>
+        <div class="btn">
+            <button id="generatePayrollReportButton">Generate Payroll Report</button>
+            <button id="exportCsvButton">Export as CSV</button>
+            <button id="exportPdfButton">Export as PDF</button>
+        </div>
+        <div id="payrollReportOutput"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

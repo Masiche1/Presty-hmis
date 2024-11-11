@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discharge Services & Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .consultation {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            position: center;
+        }
+        .section {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: -ms-inline-flexbox;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        btn {
+            display: flex;
+            margin: 50px;
+        } 
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hospital Discharge Management</h1>
+
+    <hr>
+    
+    <div class="section">
+        <h2>Hospital Details</h2>
+        <div class="form-group">
+            <label for="hospitalName"><strong>Name:</strong></label>
+            <input type="text" id="hospitalName" value="Presty HealthCare Center" readonly/>
+        </div>
+        <div class="form-group">
+            <label for="hospitalAddress"><strong>Address:</strong></label>
+            <input type="text" id="hospitalAddress" value="P.O. BOX 12-40305, Mbita, Homa Bay, Kenya" readonly />
+        </div>
+        <div class="form-group">
+            <label for="hospitalEmail"><strong>Email:</strong></label>
+            <input type="text" id="hospitalEmail" value="prestyhealthcare2021@gmail.com" readonly />
+        </div>
+        <div class="form-group">
+            <label for="hospitalWeb"><strong>Website:</strong></label>
+            <input type="text" id="hospitalWeb" value="www.prestyhealthcareorg.org" readonly />
+        </div>
+        <div class="form-group">
+            <label for="hospitalContact"><strong>Contact:</strong></label>
+            <input type="text" id="hospitalContact" value="+254 789 264755" readonly />
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Patient Details:</h2>
+        <div class="form-group">
+            <label for="patientName"><strong>Patient Name:</strong></label>
+            <input type="text" id="patientName" placeholder="Patient Name" required />
+        </div>
+        <div class="form-group">
+            <label for="patientId"><strong>Patient ID:</strong></label>
+            <input type="number" id="patientId" placeholder="Patient ID" required />
+        </div>
+        <div class="form-group">
+            <label for="patientDiagnosis"><strong>Diagnosis:</strong></label>
+            <input type="text" id="patientDiagnosis" placeholder="Diagnosis" required />
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Billing Details:</h2>
+        <div class="form-group">
+            <label for="paymentStatus"><strong>Payment Status:</strong></label>
+            <input type="number" id="paymentStatus" placeholder="Payment Status" required />
+        </div>
+        <div class="form-group">
+            <label for="totalCharges"><strong>Total Charges:</strong></label>
+            <input type="number" id="totalCharges" placeholder="Total Charges" required />
+        </div>
+        <div class="form-group">
+            <label for="paymentMethod"><strong>Payment Method:</strong></label>
+            <input type="number" id="paymentMethod" placeholder="Payment Method" required />
+        </div>
+        <div class="form-group">
+            <label for="amountPaid"><strong>Amount Paid:</strong></label>
+            <input type="number" id="amountPaid" placeholder="Amount Paid" required />
+        </div>
+        <button id="calculateBalance">Calculate Balance</button>
+        <p id="balance"></p>
+    </div>
+
+    <div class="section">
+        <h2>Discharge Services:</h2>
+        <form id="dischargeServiceForm">
+            <div class="form-group">
+                <label for="serviceName"><strong>Service Name:</strong></label>
+                <input type="text" id="serviceName" placeholder="Discharge Service Name" required />
+            </div>
+            <button type="submit">Add Service</button>
+        </form>
+        <div id="dischargeServicesList"></div>
+        <div>
+            <h2>Discharge Notes:</h2>
+             <div>
+              <textarea id="consultationNotes" placeholder="Enter Discharge Notes"></textarea><br>
+               </div>
+              <div>
+           </div>
+         </div>
+       <button onclick="saveConsultationNotes()">Save Notes</button>
+       <button id="printButton">Print Details</button>
+    </div>
+</div>
+
+
+    <script>
+        const dischargeServiceForm = document.getElementById('dischargeServiceForm');
+        const dischargeServicesList = document.getElementById('dischargeServicesList');
+
+        // Fetch existing discharge services (similar to previous example)
+        async function fetchDischargeServices() {
+            const response = await fetch('http://localhost:3000/api/discharge-services');
+            const dischargeServices = await response.json();
+            dischargeServicesList.innerHTML = dischargeServices.map(service => `
+                <div class="discharge-service">
+                    <h3>${service.name}</h3>
+                    <button onclick="deleteDischargeService(${service.id})">Delete Discharge Service</button>
+                    <form onsubmit="addDischargeSheet(event, ${service.id})">
+                        <textarea placeholder="Enter discharge sheet details..." required></textarea>
+                        <button type="submit">Add Discharge Sheet</button>
+                    </form>
+                    <div class="discharge-sheets" id="sheets-${service.id}"></div>
+                </div>
+            `).join('');
+            dischargeServices.forEach(service => fetchDischargeSheets(service.id));
+        }
+
+        // Add a new discharge service
+        dischargeServiceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = serviceName.value;
+
+            await fetch('http://localhost:3000/api/discharge-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+
+            dischargeServiceForm.reset();
+            fetchDischargeServices();
+        });
+
+        // Calculate balance
+        document.getElementById('calculateBalance').addEventListener('click', () => {
+            const totalCharges = parseFloat(document.getElementById('totalCharges').value) || 0;
+            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            const balance = totalCharges - amountPaid;
+            document.getElementById('balance').textContent = `Balance: $${balance.toFixed(2)}`;
+        });
+
+        // Print details
+        document.getElementById('printButton').addEventListener('click', () => {
+            window.print();
+        });
+
+        // The remaining functions for discharge services and sheets...
+        async function deleteDischargeService(serviceId) {
+            await fetch(`http://localhost:3000/api/discharge-services/${serviceId}`, {
+                method: 'DELETE'
+            });
+            fetchDischargeServices();
+        }
+
+        async function addDischargeSheet(e, serviceId) {
+            e.preventDefault();
+            const details = e.target.querySelector('textarea').value;
+
+            await fetch(`http://localhost:3000/api/discharge-services/${serviceId}/sheets`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ details })
+            });
+
+            e.target.reset();
+            fetchDischargeSheets(serviceId);
+        }
+
+        async function fetchDischargeSheets(serviceId) {
+            const response = await fetch(`http://localhost:3000/api/discharge-services/${serviceId}/sheets`);
+            const sheets = await response.json();
+            const sheetsDiv = document.getElementById(`sheets-${serviceId}`);
+            sheetsDiv.innerHTML = sheets.map(sheet => `
+                <div>
+                    ${sheet.details}
+                    <button onclick="deleteDischargeSheet(${serviceId}, ${sheet.id})">Delete Sheet</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteDischargeSheet(serviceId, sheetId) {
+            await fetch(`http://localhost:3000/api/discharge-services/${serviceId}/sheets/${sheetId}`, {
+                method: 'DELETE'
+            });
+            fetchDischargeSheets(serviceId);
+        }
+
+        // Initial fetch of discharge services
+        fetchDischargeServices();
+    </script>
+</body>
+</html>
+

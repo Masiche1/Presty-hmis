@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration & Service Workflow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 90%;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-top: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .section {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        btn {
+            display: flex;
+            margin: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Registration</h1>
+    
+    <div class="section">
+        <h2>Register New Patient</h2>
+        <form id="patientRegistrationForm">
+            <div class="form-group">
+                <label for="registeredDate">Registration Date:</label>
+                <input type="date" id="registeredDate" required />
+            </div>
+            <div class="form-group">
+                <label for="patientName">Patient Name:</label>
+                <input type="text" id="patientName" placeholder="Patient Name" required />
+            </div>
+            <div class="form-group">
+                <label for="opdNumber">OPD Number:</label>
+                <input type="number" id="opdNumber" placeholder="OPD Number" required />
+            </div>
+            <div class="form-group">
+                <label for="patientContact">Patient Contact:</label>
+                <input type="number" id="patientContact" placeholder="Patient Contact" required />
+            </div>
+            <div class="form-group">
+                <label for="idNumber">ID Number:</label>
+                <input type="number" id="idNumber" placeholder="ID Number" required />
+            </div>
+            <div class="form-group">
+                <label for="patientAge">Patient Age:</label>
+                <input type="number" id="patientAge" placeholder="Patient Age" required />
+            </div>
+            <div class="form-group">
+                <label for="patientGender">Patient Gender:</label>
+                <input type="text" id="patientGender" placeholder="Patient Gender" required />
+            </div>
+            <div class="form-group">
+                <label for="patientAddress">Patient Villege:</label>
+                <input type="text" id="patientAddress" placeholder="Patient Villege" required />
+            </div>
+            <div class="form-group">
+                <label for="patientReferral">Referral:</label>
+                <input type="text" id="patientReferral" placeholder="Referred from" />
+            </div>
+            
+        </form>
+        <div class="btn">
+            <button type="submit">Register Patient</button>
+            <button onclick="saveData()">Send to Consutation</button>
+        </div>
+    </div>
+
+        <hr>
+     
+    <div class="section">
+        <h2>Search Patient</h2>
+        <div>
+            <div class="form-group">
+                <label for="searchName">Search using Name:</label>
+                <input type="text" id="searchName" placeholder="Enter patient's name" />
+            </div>
+            <div class="form-group">
+                <label for="searchContact">Search using Contact:</label>
+                <input type="text" id="searchContact" placeholder="Enter contact number" />
+            </div>
+            <div class="form-group">
+                <label for="searchOPD">Search using OPD number:</label>
+                <input type="text" id="searchOPD" placeholder="Enter OPD number" />
+            </div>
+            <div class="form-group">
+                <label for="searchID">Search using ID Number:</label>
+                <input type="text" id="searchID" placeholder="Enter ID number" />
+            </div>
+            <button onclick="searchPatient()">Search</button>
+        </div>
+        </div>
+    
+
+    <div id="searchResults"></div>
+
+    <div class="section">
+        <h2>Service Workflow</h2>
+        <form id="serviceWorkflowForm">
+            <div class="form-group">
+                <label for="servicePatientId">Patient ID:</label>
+                <input type="number" id="servicePatientId" placeholder="Patient ID" required />
+            </div>
+            <div class="form-group">
+                <label for="serviceName">Service Name:</label>
+                <input type="text" id="serviceName" placeholder="Service Name" required />
+            </div>
+            <div class="form-group">
+                <label for="serviceDate">Service Date:</label>
+                <input type="date" id="serviceDate" required />
+            </div>
+            <button type="submit">Add Service</button>
+        </form>
+        <div id="servicesList"></div>
+    </div>
+
+    <script>
+        const patientRegistrationForm = document.getElementById('patientRegistrationForm');
+        const serviceWorkflowForm = document.getElementById('serviceWorkflowForm');
+        const servicesList = document.getElementById('servicesList');
+
+        // Register new patient
+        patientRegistrationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = patientName.value;
+            const opd = opdNumber.value;
+            const id = idNumber.value;
+            const contact = patientContact.value;
+            const villege = patientAddress.value;
+            const age = patientAge.value;
+            const gender = patientGender.value;
+            const date = registeredDate.value;
+            const referral = patientReferral.value;
+
+            await fetch('http://localhost:3000/api/patients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, contact, age, gender, diagnosis })
+            });
+
+            const newPatient = await response.json();
+            patientRegistrationForm.reset();
+            registrationMessage.textContent = `Patient registered successfully! Patient ID: ${newPatient.id}`;
+        });
+
+        // Add service for a patient
+        serviceWorkflowForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const patientId = servicePatientId.value;
+            const service = serviceName.value;
+            const date = serviceDate.value;
+
+            await fetch('http://localhost:3000/api/services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ patientId, serviceName, serviceDate })
+            });
+
+            serviceWorkflowForm.reset();
+            alert('Service added successfully!');
+            fetchServices(); // Refresh service list
+        });
+
+        // Fetch and display services for registered patients
+        async function fetchServices() {
+            const response = await fetch('http://localhost:3000/api/services');
+            const services = await response.json();
+            servicesList.innerHTML = services.map(service => `
+                <div>
+                    <strong>Patient ID:</strong> ${service.patientId} <br>
+                    <strong>Service:</strong> ${service.name} <br>
+                    <strong>Date:</strong> ${service.date} <br>
+                </div>
+            `).join('');
+        }
+
+        // Initial fetch of services
+        fetchServices();
+        
+    
+        async function saveData() {
+            const name = document.getElementById('patientName').value;
+            const opd = document.getElementById('opdNumber').value;
+            const id = document.getElementById('idNumber').value;
+            const contact = document.getElementById('patientContact').value;
+            const villege = document.getElementById('patientAddress').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const date = document.getElementById('registeredDate').value;
+            const referral = document.getElementById('patientReferral').value;
+
+            const patientData = {
+                name: patientName,
+                contact: patientContact,
+                opd: opdNumber,
+                id: idNumber,
+                age: patientAge,
+                villege: patientAddress,
+                gender: patientGender,
+                referral: patientReferral,
+                date: registeredDate,
+                // You can add other fields as you collect them in later steps
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/patients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Saved: ${data.name}`);
+                    window.location.href = 'cashier.html'; // Redirect to cashier
+                } else {
+                    alert('Failed to save patient data.');
+                }
+            } catch (error) {
+                console.error('Error saving patient data:', error);
+            }
+        }
+
+        // Use utility functions from offlineUtils.js
+        const patientApiUrl = 'http://localhost:5000/api/patients';
+        const offlineKey = 'offlinePatients';
+
+         function isOnline() {
+            return navigator.onLine;
+        }
+
+        async function savePatient() {
+            const patientName = document.getElementById('patientName').value;
+            const contact = document.getElementById('patientContact').value;
+            const iddNumber = document.getElementById('idNumber').value;
+            const opdNumber = document.getElementById('opdNumber').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const diagnosis = document.getElementById('patientDiagnosis').value;
+
+            const patientData = {
+                name: patientName,
+                contactNumber: contactNumber,
+                opdNumber: opdNumber,
+                idNumber: idNumber,
+                age: patientAge,
+                gender: patientGender,
+                referral: patientReferral
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch('http://localhost:5000/api/patients', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(patientData)
+                    });
+
+                    const savedPatient = await response.json();
+                    console.log('Patient saved:', savedPatient);
+                } catch (error) {
+                    console.error('Failed to save patient on server:', error);
+                    savePatientOffline(patientData);
+                }
+            } else {
+                savePatientOffline(patientData);
+            }
+        }
+
+        function savePatientOffline(patientData) {
+            let offlinePatients = JSON.parse(localStorage.getItem('offlinePatients')) || [];
+            offlinePatients.push(patientData);
+            localStorage.setItem('offlinePatients', JSON.stringify(offlinePatients));
+            console.log('Patient saved locally');
+        }
+
+        // Sync offline data when online
+        window.addEventListener('online', async () => {
+            const offlinePatients = JSON.parse(localStorage.getItem('offlinePatients')) || [];
+            for (let patient of offlinePatients) {
+                try {
+                    const response = await fetch('http://localhost:5000/api/patients', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(patient)
+                    });
+                    const savedPatient = await response.json();
+                    console.log('Synced offline patient:', savedPatient);
+
+                    // Remove the synced patient from localStorage
+                    offlinePatients = offlinePatients.filter(p => p !== patient);
+                    localStorage.setItem('offlinePatients', JSON.stringify(offlinePatients));
+                } catch (error) {
+                    console.error('Error syncing offline data:', error);
+                }
+            }
+        });
+        async function searchPatient() {
+            const name = document.getElementById('searchName').value;
+            const contact = document.getElementById('searchContact').value;
+            const opd = document.getElementById('searchOPD').value;
+            const id = document.getElementById('searchID').value;
+
+            const queryString = new URLSearchParams({ name, contactNumber: contact, opdNumber: opd, idNumber: id }).toString();
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/patients/search?${queryString}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = `${patient.name} (Contact: ${patient.contactNumber})`; // Customize as needed
+                        const viewButton = document.createElement('button');
+                        viewButton.textContent = 'View';
+                        viewButton.onclick = () => viewPatientDetails(patient._id); // Pass the patient ID
+                        li.appendChild(viewButton);
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+
+        async function viewPatientDetails(patientId) {
+            // Redirect to a new page or display patient details in a modal
+            window.location.href = `patient_details.html?id=${patientId}`; // Create a new page for details
+        }
+    </script>
+</body>
+</html>

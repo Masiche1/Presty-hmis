@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Services</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pharmacy Services</h1>
+
+
+    <hr>
+    <div class="card">
+        <h2>Search Patient</h2>
+        <div class="form-group">
+            <input type="text" id="searchName" placeholder="Enter patient name" />
+        </div>
+        <button onclick="searchPatient()">Search</button>
+    
+        <div id="searchResults"></div>
+    </div>
+    
+
+     <!-- Patient and medication information form --> 
+
+    <div class="card">
+        <h2 id="formTitle">Add Medication</h2>
+        <div class="form-group">
+            <label for="patientName">Patient Name:</label>
+            <input type="text" id="patientName" />
+        </div>
+       <div class="form-group">
+            <label for="patientId">Patient ID:</label>
+            <input type="text" id="patientId" placeholder="Enter Patient ID" /><br>
+        </div>   
+        <div class="form-group">
+            <label for="medicationName">Medication Name</label>
+            <input type="text" id="medicationName" placeholder="Enter medication name">
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" placeholder="Enter quantity">
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" id="price" placeholder="Enter price">
+        </div>
+        <label for="medicationDetails">Medication Details:</label>
+        <textarea id="medicationDetails" placeholder="Enter Medication Details"></textarea><br>
+        <div class="btn">
+            <button id="addMedicationBtn">Add Medication</button>
+            <button onclick="saveMedication()">Save Medication</button>
+            <button onclick="saveData()">Send to Cashier</button>
+        </div>
+
+    </div>
+    </div>
+
+    <div class="card">
+        <h2>Medication List</h2>
+        <table id="medicationTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="medicationBody">
+                <!-- Medication rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    
+        // Pharmacy API URL for saving medication data
+        const pharmacyApiUrl = 'http://localhost:5000/api/patients/pharmacy';
+        const offlineKey = 'offlineMedications';
+
+        // Function to save medication data
+        async function saveMedication() {
+            const patientId = document.getElementById('patientId').value;
+            const medicationDetails = document.getElementById('medicationDetails').value;
+
+            const medicationData = {
+                patientId,
+                medicationDetails
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(pharmacyApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(medicationData)
+                    });
+                    const savedMedication = await response.json();
+                    console.log('Medication saved:', savedMedication);
+                    alert('Medication Details Saved');
+                } catch (error) {
+                    console.error('Failed to save medication on server:', error);
+                    saveOfflineData(offlineKey, medicationData);
+                }
+            } else {
+                saveOfflineData(offlineKey, medicationData);
+                alert('Medication details saved locally due to no internet connection.');
+            }
+        }
+
+        // Set up synchronization for offline data when the system goes online
+        setupSyncOnOnline(pharmacyApiUrl, offlineKey);
+        const medicationTableBody = document.getElementById('medicationBody');
+        let currentEditingId = null;
+
+        async function fetchMedications() {
+            const response = await fetch('http://localhost:3000/api/pharmacy-services');
+            const medications = await response.json();
+            medicationTableBody.innerHTML = medications.map(medication => `
+                <tr>
+                    <td>${medication.id}</td>
+                    <td>${medication.name}</td>
+                    <td>${medication.quantity}</td>
+                    <td>${medication.price}</td>
+                    <td>
+                        <button onclick="editMedication(${medication.id}, '${medication.name}', ${medication.quantity}, ${medication.price})">Edit</button>
+                        <button onclick="deleteMedication(${medication.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addMedication() {
+            const name = document.getElementById('medicationName').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+
+            const response = await fetch('http://localhost:3000/api/pharmacy-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, quantity, price })
+            });
+
+            if (response.ok) {
+                fetchMedications();
+                resetForm();
+            } else {
+                alert('Error adding medication');
+            }
+        }
+
+        async function updateMedication() {
+            const name = document.getElementById('medicationName').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+
+            const response = await fetch(`http://localhost:3000/api/pharmacy-services/${currentEditingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, quantity, price })
+            });
+
+            if (response.ok) {
+                fetchMedications();
+                resetForm();
+            } else {
+                alert('Error updating medication');
+            }
+        }
+
+        async function deleteMedication(id) {
+            const response = await fetch(`http://localhost:3000/api/pharmacy-services/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                fetchMedications();
+            } else {
+                alert('Error deleting medication');
+            }
+        }
+
+        function editMedication(id, name, quantity, price) {
+            currentEditingId = id;
+            document.getElementById('medicationName').value = name;
+            document.getElementById('quantity').value = quantity;
+            document.getElementById('price').value = price;
+            document.getElementById('formTitle').innerText = 'Edit Medication';
+            document.getElementById('addMedicationBtn').innerText = 'Update Medication';
+            document.getElementById('addMedicationBtn').onclick = updateMedication;
+        }
+
+        function resetForm() {
+            currentEditingId = null;
+            document.getElementById('medicationName').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('formTitle').innerText = 'Add Medication';
+            document.getElementById('addMedicationBtn').innerText = 'Add Medication';
+            document.getElementById('addMedicationBtn').onclick = addMedication;
+        }
+
+        document.getElementById('addMedicationBtn').addEventListener('click', addMedication);
+        fetchMedications();
+
+        async function saveData() {
+            const patientName = document.getElementById('patientName').value;
+            const medicationBody = document.getElementById('medicationBody').value;
+
+            const patientData = {
+                name: patientName,
+                medicationBody,
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/patients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Saved: ${data.name}`);
+                    window.location.href = 'cashier.html'; // Redirect to cashier
+                } else {
+                    alert('Failed to save patient data.');
+                }
+            } catch (error) {
+                console.error('Error saving patient data:', error);
+            }
+        }
+
+        async function searchPatient() {
+            const searchName = document.getElementById('searchName').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/search?name=${searchName}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = patient.name; // You can add more fields as needed
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+

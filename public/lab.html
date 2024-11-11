@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Services, Results & Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .consultation {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            position: center;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: -ms-inline-flexbox;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        btn {
+            display: flex;
+            margin: 50px;
+        } 
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .lab-service {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Form to input lab results for a patient -->
+    <h1>Lab Services</h1>
+
+    <hr>
+
+    <div class="card">
+        <h2>Search Patient</h2>
+        <div class="form-group">
+            <input type="text" id="patientName" placeholder="Enter Patient Name"/>
+        </div>
+        <button onclick="searchPatient()">Search</button>
+    
+        <div id="searchResults"></div>
+    </div>
+
+    <div class="card">
+        <h2>New Lab Test</h2>
+        <form id="labServiceForm">
+            <div class="form-group">
+                <label for="labService">Lab Service:</label>
+                <input type="text" id="serviceName" placeholder="Lab Service Name" required />
+            </div>
+        </form>
+    
+        <div id="labServicesList"></div>
+    
+        <div class="form-group">
+            <label for="patientName">Patient Name:</label>
+            <input type="text" id="patientName" placeholder="Enter Patient Name"/>
+        </div>
+        <div class="form-group">
+            <label for="patientId">Patient ID:</label>
+            <input type="text" id="patientId" placeholder="Enter Patient ID" /><br>
+        </div>
+        <div class="form-group">
+            <label for="labTest">Lab Test:</label>
+            <input type="text" id="labTest" placeholder="Enter Lab Test Name" /><br>
+        </div>
+        <div class="form-group">
+            <label for="testResults">Test Results:</label>
+            <textarea id="testResults" placeholder="Enter Lab Test Results"></textarea><br>
+        </div>
+    
+        <div class="btn">
+            <button type="submit">Add Lab Service</button>
+            <button onclick="saveLabResults()">Save Lab Results</button>
+            <button onclick="saveData()">Send to Doctor</button>
+        </div>
+    </div>
+
+    <script>
+        // Lab API URL to save lab results
+        const labApiUrl = 'http://localhost:5000/api/patients/lab';
+        const offlineKey = 'offlineLabResults';
+
+        // Save lab results
+        async function saveLabResults() {
+            const patientId = document.getElementById('patientId').value;
+            const labTest = document.getElementById('labTest').value;
+            const testResults = document.getElementById('testResults').value;
+
+            const labData = {
+                patientId,
+                labTest,
+                testResults
+            };
+
+            if (isOnline()) {
+                try {
+                    const response = await fetch(labApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(labData)
+                    });
+                    const savedLabResults = await response.json();
+                    console.log('Lab results saved:', savedLabResults);
+                    alert('Lab Results Saved');
+                } catch (error) {
+                    console.error('Failed to save lab results on server:', error);
+                    saveOfflineData(offlineKey, labData);
+                }
+            } else {
+                saveOfflineData(offlineKey, labData);
+                alert('Lab results saved locally due to no internet connection.');
+            }
+        }
+
+        // Set up synchronization for offline data when the system goes online
+        setupSyncOnOnline(labApiUrl, offlineKey);
+        async function saveData() {
+            const patientName = document.getElementById('patientName').value;
+
+            const patientData = {
+                name: patientName,
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/patients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patientData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Saved: ${data.name}`);
+                    window.location.href = 'cashier.html'; // Redirect to cashier
+                } else {
+                    alert('Failed to save patient data.');
+                }
+            } catch (error) {
+                console.error('Error saving patient data:', error);
+            }
+        }
+
+        async function searchPatient() {
+            const searchName = document.getElementById('searchName').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/search?name=${searchName}`);
+                const patients = await response.json();
+
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (patients.length > 0) {
+                    const ul = document.createElement('ul');
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.textContent = patient.name; // You can add more fields as needed
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                } else {
+                    resultsDiv.textContent = 'No patients found.';
+                }
+            } catch (error) {
+                console.error('Error searching for patients:', error);
+            }
+        }
+
+        const labServiceForm = document.getElementById('labServiceForm');
+        const labServicesList = document.getElementById('labServicesList');
+
+        // Fetch existing lab services
+        async function fetchLabServices() {
+            const response = await fetch('http://localhost:3000/api/lab-services');
+            const labServices = await response.json();
+            labServicesList.innerHTML = labServices.map(service => `
+                <div class="lab-service">
+                    <h3>${service.name}</h3>
+                    <button onclick="deleteLabService(${service.id})">Delete Lab Service</button>
+                    <form onsubmit="addResultForService(event, ${service.id})">
+                        <input type="text" placeholder="Lab Result" required />
+                        <button type="submit">Add Result</button>
+                    </form>
+                    <div class="results" id="results-${service.id}"></div>
+                </div>
+            `).join('');
+            labServices.forEach(service => fetchResults(service.id));
+        }
+
+        // Add a new lab service
+        labServiceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = serviceName.value;
+
+            await fetch('http://localhost:3000/api/lab-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+
+            labServiceForm.reset();
+            fetchLabServices();
+        });
+
+        // Delete a lab service
+        async function deleteLabService(serviceId) {
+            await fetch(`http://localhost:3000/api/lab-services/${serviceId}`, {
+                method: 'DELETE'
+            });
+            fetchLabServices();
+        }
+
+        // Add a result for a specific lab service
+        async function addResultForService(e, serviceId) {
+            e.preventDefault();
+            const result = e.target.querySelector('input[type="text"]').value;
+
+            await fetch(`http://localhost:3000/api/lab-services/${serviceId}/results`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ result })
+            });
+
+            e.target.reset();
+            fetchResults(serviceId);
+        }
+
+        // Fetch results for a lab service
+        async function fetchResults(serviceId) {
+            const response = await fetch(`http://localhost:3000/api/lab-services/${serviceId}/results`);
+            const results = await response.json();
+            const resultsDiv = document.getElementById(`results-${serviceId}`);
+            resultsDiv.innerHTML = results.map(result => `
+                <div>
+                    ${result.content}
+                    <button onclick="deleteResult(${serviceId}, ${result.id})">Delete Result</button>
+                </div>
+            `).join('');
+        }
+
+        // Delete a lab result
+        async function deleteResult(serviceId, resultId) {
+            await fetch(`http://localhost:3000/api/lab-services/${serviceId}/results/${resultId}`, {
+                method: 'DELETE'
+            });
+            fetchResults(serviceId);
+        }
+
+        // Initial fetch of lab services
+        fetchLabServices();
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, content=initial-scale=1.0">
+    <title>Modify Patient</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modify Patient Details</h1>
+    <div id="patientForm"></div>
+    <button onclick="saveChanges()">Save Changes</button>
+
+    <script>
+        let patientId;
+
+        async function fetchPatientDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            patientId = urlParams.get('id');
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/${patientId}`);
+                const patient = await response.json();
+
+                const patientFormDiv = document.getElementById('patientForm');
+                patientFormDiv.innerHTML = `
+                    <label for="patientName">Name:</label>
+                    <input type="text" id="patientName" value="${patient.name}" />
+                    <label for="contactNumber">Contact Number:</label>
+                    <input type="text" id="contactNumber" value="${patient.contactNumber}" />
+                    <label for="opdNumber">OPD Number:</label>
+                    <input type="text" id="opdNumber" value="${patient.opdNumber}" />
+                    <label for="idNumber">ID Number:</label>
+                    <input type="text" id="idNumber" value="${patient.idNumber}" />
+                    <label for="paymentStatus">Payment Status:</label>
+                    <input type="text" id="paymentStatus" value="${patient.paymentStatus}" />
+                `;
+            } catch (error) {
+                console.error('Error fetching patient details for modification:', error);
+            }
+        }
+
+        async function saveChanges() {
+            const updatedPatientData = {
+                name: document.getElementById('patientName').value,
+                contactNumber: document.getElementById('contactNumber').value,
+                opdNumber: document.getElementById('opdNumber').value,
+                idNumber: document.getElementById('idNumber').value,
+                paymentStatus: document.getElementById('paymentStatus').value
+            };
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/${patientId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedPatientData)
+                });
+
+                if (response.ok) {
+                    alert('Patient details updated successfully!');
+                    window.location.href = `patient_details.html?id=${patientId}`;
+                } else {
+                    alert('Failed to update patient details.');
+                }
+            } catch (error) {
+                console.error('Error updating patient details:', error);
+            }
+        }
+
+        // Fetch the patient details when the page loads
+        fetchPatientDetails();
+    </script>
+</body>
+</html>

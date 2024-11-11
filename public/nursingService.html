@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing Services & Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .service {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nursing Services</h1>
+    <form id="serviceForm">
+        <input type="text" id="serviceName" placeholder="Nursing Service Name" required />
+        <button type="submit">Add Service</button>
+    </form>
+
+    <div id="servicesList"></div>
+
+    <div>
+        <label for="patientName">Patient Name:</label>
+        <input type="text" id="patientName" />
+    </div>
+    <button onclick="saveData()">Save & Next</button>
+
+    <hr>
+
+    <h2>Search Patient</h2>
+    <input type="text" id="searchName" placeholder="Enter patient name" />
+    <button onclick="searchPatient()">Search</button>
+
+    <div id="searchResults"></div>
+
+    <script>
+        const serviceForm = document.getElementById('serviceForm');
+        const serviceName = document.getElementById('serviceName');
+        const servicesList = document.getElementById('servicesList');
+
+        // Fetch existing nursing services
+        async function fetchServices() {
+            const response = await fetch('http://localhost:3000/api/nursing-services');
+            const services = await response.json();
+            servicesList.innerHTML = services.map(service => `
+                <div class="service">
+                    <h3>${service.name}</h3>
+                    <button onclick="deleteService(${service.id})">Delete Service</button>
+                    <form onsubmit="addNoteForService(event, ${service.id})">
+                        <textarea placeholder="Add a note..."></textarea>
+                        <button type="submit">Add Note</button>
+                    </form>
+                    <div class="notes" id="notes-${service.id}"></div>
+                </div>
+            `).join('');
+            services.forEach(service => fetchNotes(service.id));
+        }
+
+        // Add a new nursing service
+        serviceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = serviceName.value;
+
+            await fetch('http://localhost:3000/api/nursing-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+
+            serviceName.value = '';
+            fetchServices();
+        });
+
+        // Delete a nursing service
+        async function deleteService(serviceId) {
+            await fetch(`http://localhost:3000/api/nursing-services/${serviceId}`, {
+                method: 'DELETE'
+            });
+            fetchServices();
+        }
+
+        // Add a note for a specific nursing service
+        async function addNoteForService(e, serviceId) {
+            e.preventDefault();
+            const note = e.target.querySelector('textarea').value;
+
+            await fetch(`http://localhost:3000/api/nursing-services/${serviceId}/notes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ note })
+            });
+
+            e.target.reset();
+            fetchNotes(serviceId);
+        }
+
+        // Fetch notes for a nursing service
+        async function fetchNotes(serviceId) {
+            const response = await fetch(`http://localhost:3000/api/nursing-services/${serviceId}/notes`);
+            const notes = await response.json();
+            const notesDiv = document.getElementById(`notes-${serviceId}`);
+            notesDiv.innerHTML = notes.map(note => `<div>${note.content}</div>`).join('');
+        }
+
+        // Initial fetch of services
+        fetchServices();
+    </script>
+</body>
+</html>
+

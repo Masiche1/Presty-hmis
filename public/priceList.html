@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price List</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .consultation {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            position: center;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 30px;
+            margin-left: 30px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: -ms-inline-flexbox;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn {
+            display: flex;
+            margin: 50px;
+        } 
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 40%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 40%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    
+        <h1>Price List Management</h1>
+
+        <hr>
+         
+    <div class="card">
+        <h2>Consultation</h2>
+        <table id="consultationTable">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Price Ksh</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>General Consultation</td>
+                    <td><input type="number" value="50" /></td>
+                    <td>
+                        <button onclick="updatePrice('consultation', 0)">Update</button>
+                        <button onclick="deleteItem('consultation', this)">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Specialist Consultation</td>
+                    <td><input type="number" value="100" /></td>
+                    <td>
+                        <button onclick="updatePrice('consultation', 1)">Update</button>
+                        <button onclick="deleteItem('consultation', this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="text" id="newConsultationType" placeholder="New Consultation Type" />
+        <input type="number" id="newConsultationPrice" placeholder="Price" />
+        <button onclick="addItem('consultation')">Add Consultation</button>
+
+        <h2>Medical Services</h2>
+        <table id="servicesTable">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Price Ksh</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>X-Ray</td>
+                    <td><input type="number" value="80" /></td>
+                    <td>
+                        <button onclick="updatePrice('service', 0)">Update</button>
+                        <button onclick="deleteItem('service', this)">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ultrasound</td>
+                    <td><input type="number" value="120" /></td>
+                    <td>
+                        <button onclick="updatePrice('service', 1)">Update</button>
+                        <button onclick="deleteItem('service', this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="text" id="newServiceType" placeholder="New Service" />
+        <input type="number" id="newServicePrice" placeholder="Price" />
+        <button onclick="addItem('service')">Add Service</button>
+
+        <h2>Drugs</h2>
+        <table id="drugsTable">
+            <thead>
+                <tr>
+                    <th>Drug</th>
+                    <th>Price Ksh</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Paracetamol</td>
+                    <td><input type="number" value="5" /></td>
+                    <td>
+                        <button onclick="updatePrice('drug', 0)">Update</button>
+                        <button onclick="deleteItem('drug', this)">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Amoxicillin</td>
+                    <td><input type="number" value="15" /></td>
+                    <td>
+                        <button onclick="updatePrice('drug', 1)">Update</button>
+                        <button onclick="deleteItem('drug', this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="text" id="newDrugType" placeholder="New Drug" />
+        <input type="number" id="newDrugPrice" placeholder="Price" />
+        <button onclick="addItem('drug')">Add Drug</button>
+
+        <h2>Lab Tests</h2>
+        <table id="labTestsTable">
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Blood Test</td>
+                    <td><input type="number" value="30" /></td>
+                    <td>
+                        <button onclick="updatePrice('labTest', 0)">Update</button>
+                        <button onclick="deleteItem('labTest', this)">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Urine Test</td>
+                    <td><input type="number" value="20" /></td>
+                    <td>
+                        <button onclick="updatePrice('labTest', 1)">Update</button>
+                        <button onclick="deleteItem('labTest', this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="text" id="newLabTestType" placeholder="New Lab Test" />
+        <input type="number" id="newLabTestPrice" placeholder="Price" />
+        <button onclick="addItem('labTest')">Add Lab Test</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
